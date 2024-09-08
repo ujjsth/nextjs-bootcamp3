@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { UserValidationSchema } from "./Schema";
+import { error } from "console";
 
 export function GET(request: NextRequest){
     // fetch datas from databse
@@ -7,12 +9,21 @@ export function GET(request: NextRequest){
         id: 1,
         name: "Ram",
         email: "ram@gmail.com"
-    }, {status: 400});
+    }, {status: 200});
 }
 
 export async function POST(request: NextRequest){
    const body = await request.json();
 
+   const validation = UserValidationSchema.safeParse(body);
+
+   if(!validation.success){
+        return NextResponse.json(
+            { error: validation.error.errors },
+            { status: 400}
+        )
+   }
+   
    // validation
    // insert data
    // return inserted data

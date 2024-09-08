@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { UserValidationSchema } from "../Schema";
 
 interface Params{
     params: {
@@ -23,6 +24,14 @@ export function GET(request: NextRequest,{ params: { user_id}}: Params){
 
 export async function PUT(request: NextRequest,{ params: { user_id}}: Params){
     const body = await request.json();
+
+    const validation =  UserValidationSchema.safeParse(body);
+    if(!validation.success){
+        return NextResponse.json(
+            { error: validation.error.errors},
+            { status: 400}
+        )
+    }
 
     if(user_id > 10){
         return NextResponse.json(
