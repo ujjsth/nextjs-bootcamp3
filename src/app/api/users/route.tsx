@@ -1,20 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { UserValidationSchema } from "./Schema";
-import { error } from "console";
+import prisma from "../../../../prisma/prisma";
 
-export function GET(request: NextRequest){
-    // fetch datas from databse
-    // return datas
-    return NextResponse.json({
-        id: 1,
-        name: "Ram",
-        email: "ram@gmail.com"
-    }, {status: 200});
+export async function GET(request: NextRequest){
+    const users = await prisma.user.findMany({});
+    return NextResponse.json(users);
 }
 
 export async function POST(request: NextRequest){
    const body = await request.json();
-
    const validation = UserValidationSchema.safeParse(body);
 
    if(!validation.success){
@@ -24,9 +18,12 @@ export async function POST(request: NextRequest){
         )
    }
    
-   // validation
-   // insert data
-   // return inserted data
+   const newUser = await prisma.user.create({
+        data: {
+            name: body.name,
+            email: body.email
+        }
+   })
 
-    return NextResponse.json(body);
+    return NextResponse.json(newUser);
 }

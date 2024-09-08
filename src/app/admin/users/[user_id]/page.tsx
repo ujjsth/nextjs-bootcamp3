@@ -1,9 +1,10 @@
-import React from 'react';
-import { notFound } from 'next/navigation';
+"use client"
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 interface Params{
     params: {
-        user_id: number
+        user_id: string
     }
 }
 
@@ -13,15 +14,22 @@ interface User{
     email: string;
 }
 
-export default async function UserDetails({ params: { user_id } } : Params) {
-    const res = await fetch(`https://jsonplaceholder.typicode.com/users/${user_id}`);
-    const user : User = await res.json();
-
-    console.log(user_id)
-
-    if(!user.id){
-        notFound();
+export default function UserDetails({ params: { user_id } } : Params) {
+    const [ userData, setUserData] = useState<User>();
+    const fetchUser = () =>{
+      axios.get(`http://localhost:3000/api/users/${user_id}`)
+      .then(data=>{
+        setUserData(data.data)
+  
+      }).catch(err=>{
+        console.log(err)
+      })
     }
+  
+    useEffect(()=>{
+      fetchUser();
+    })
+  
 
   return (
     <div>
@@ -30,15 +38,15 @@ export default async function UserDetails({ params: { user_id } } : Params) {
             <thead>
                 <tr>
                     <th>ID</th>
-                    <td>{user.id}</td>
+                    <td>{userData?.id}</td>
                 </tr>
                 <tr>
                     <th>Name</th>
-                    <td>{user.name}</td>
+                    <td>{userData?.name}</td>
                 </tr>
                 <tr>
                     <th>Email</th>
-                    <td>{user.email}</td>
+                    <td>{userData?.email}</td>
                 </tr>
             </thead>
         </table>

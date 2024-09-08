@@ -1,5 +1,7 @@
+"use client"
+import axios from 'axios';
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 interface User{
   id: number;
@@ -7,9 +9,33 @@ interface User{
   email:string
 }
 
-export default async function UsersPage() {
-  const res = await fetch("https://jsonplaceholder.typicode.com/users");
-  const userDatas : User[] = await res.json();
+export default function UsersPage() {
+const [ userDatas, setUserDatas] = useState<User[]>();
+  const fetchUsers = () =>{
+    axios.get("http://localhost:3000/api/users")
+    .then(data=>{
+      setUserDatas(data.data)
+
+    }).catch(err=>{
+      console.log(err)
+    })
+  }
+
+  const handleDelete =(id:any)=>{
+    if(confirm("are u sure want to delte?")){
+      axios.delete(`http://localhost:3000/api/users/${id}`)
+      .then(data=>{
+        setUserDatas(userDatas?.filter(user=> user.id != id))
+  
+      }).catch(err=>{
+        console.log(err)
+      })
+    }
+  } 
+
+  useEffect(()=>{
+    fetchUsers();
+  },[])
 
   return (
     <>
@@ -30,7 +56,7 @@ export default async function UsersPage() {
         </thead>
         <tbody>
           {
-            userDatas.map(user => {
+            userDatas?.map(user => {
               return (
                 <tr key={user.id}>
                   <td>{user.id}</td>
@@ -38,6 +64,9 @@ export default async function UsersPage() {
                   <td>{user.email}</td>
                   <td>
                     <Link href={`/admin/users/${user.id}`} className='btn btn-primary'>View</Link>
+                    <button
+                      onClick={()=> handleDelete(user.id)}
+                    className='btn btn-warning'>Delete</button>
                   </td>
                 </tr>
               )
